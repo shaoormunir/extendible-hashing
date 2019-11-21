@@ -12,8 +12,7 @@ public final class App {
     }
 
     public static void main(String[] args) {
-        String choice = FileIO.getSelectionFromUser(
-                Arrays.asList("Run the program yourself", "See example input andoutputs"),
+        String choice = FileIO.getSelectionFromUser(Arrays.asList("Run the program yourself", "Run example scenario"),
                 "Please choose how you want to run the program.");
         if (choice.equals("Run the program yourself")) {
             runFromUserInput();
@@ -23,7 +22,7 @@ public final class App {
     }
 
     private static void runFromUserInput() {
-        int bucketSize = FileIO.getIntegerInputFromUser("Please enter the bucket size.");
+        int bucketSize = FileIO.getIntegerInputFromUser("Please enter the bucket size: ");
         Directory directory = new Directory(bucketSize);
         boolean exit = false;
         while (!exit) {
