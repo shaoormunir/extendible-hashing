@@ -178,17 +178,13 @@ public class Directory {
             if (bucket.getDepth() < this.depth) {
                 if (App.DEBUG)
                     System.out.println("The bucket has a depth level less than global depth, bucket needs to be split");
-                String pattern = bucket.getPattern();
                 splitBucket(bucket);
-                bucketMap.remove(pattern);
                 insert(key, value);
             } else if (bucket.getDepth() == this.depth) {
                 if (App.DEBUG)
                     System.out.println(
                             "The bucket has a depth level equal to the global depth, both bucket and directory needs to be split and extended.");
-                String pattern = bucket.getPattern();
                 expandDirectory();
-                bucketMap.remove(pattern);
                 splitBucket(bucket);
                 insert(key, value);
             } else {
