@@ -92,10 +92,13 @@ public class Bucket {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         if (getData().size() > 0) {
-            getData().forEach((key, value) -> builder.append(" [" + value + " (" + key + ")]"));
+            builder.append(" [");
+            getData().forEach((key, value) -> builder.append("(" + value + " : " + key + "), "));
+            builder.delete(builder.length() - 2, builder.length());
+            builder.append("]");
         } else
-            builder.append(" Empty bucket");
-        builder.append(" (Local depth: " + getDepth() + ")");
+            builder.append(" [Empty bucket]");
+        builder.append(" Local depth: " + getDepth());
         return builder.toString();
     }
 

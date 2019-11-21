@@ -102,7 +102,9 @@ public class Directory {
     }
 
     private String getSisPattern(String pattern) {
-        return pattern.substring(0, pattern.length() - 1) + (pattern.charAt(pattern.length() - 1) == '1' ? "0" : "1");
+        // return pattern.substring(0, pattern.length() - 1) +
+        // (pattern.charAt(pattern.length() - 1) == '1' ? "0" : "1");
+        return (pattern.charAt(0) == '1' ? "0" : "1") + pattern.substring(1, pattern.length());
     }
 
     private Bucket getBucketByPattern(String pattern) {
@@ -125,7 +127,7 @@ public class Directory {
         String pattern = bucket.getPattern();
         String sisPattern = getSisPattern(pattern);
         Bucket sisBucket = getBucketByPattern(sisPattern);
-        String newPattern = bucket.getPattern().substring(0, pattern.length() - 1);
+        String newPattern = bucket.getPattern().substring(1, pattern.length());
         HashMap<Integer, String> newData = new HashMap<>();
         newData.putAll(bucket.getData());
         newData.putAll(sisBucket.getData());
@@ -135,6 +137,27 @@ public class Directory {
             if (value == bucket || value == sisBucket)
                 bucketMap.put(key, newBucket);
         });
+    }
+
+    private boolean checkIfShrinkRequired() {
+        return !bucketMap.values().stream().distinct().anyMatch(bucket -> bucket.getDepth() == this.depth);
+    }
+
+    private void shrinkTable() {
+        List<String> keys = new ArrayList<>(bucketMap.keySet());
+
+        keys.forEach(key -> {
+            if (bucketMap.get(key) != null) {
+                String sisKey = getSisPattern(key);
+                String newKey = key.substring(1, key.length());
+                bucketMap.put(newKey, bucketMap.get(key));
+                bucketMap.remove(key);
+                bucketMap.remove(sisKey);
+            }
+        });
+        depth--;
+        if (checkIfShrinkRequired())
+            shrinkTable();
     }
 
     private String getStringHash(int key) {
@@ -194,6 +217,8 @@ public class Directory {
             bucket.getData().remove(key);
             if (checkIfMergeNeeded(bucket)) {
                 mergeBuckets(bucket);
+                if (checkIfShrinkRequired())
+                    shrinkTable();
             }
         }
     }
@@ -216,12 +241,11 @@ public class Directory {
                 Bucket temp = getBucketMap().get(key);
                 if (temp != null) {
                     builder.append(temp.toString() + System.lineSeparator());
-                    if (temp.getData().size() > 0) {
-                        keys.stream().filter(tempKey -> !tempKey.equals(key))
-                                .filter(tempKey -> getBucketMap().get(tempKey).getPattern().equals(temp.getPattern()))
-                                .forEach(tempKey -> builder
-                                        .append(tempKey + ": ─────────────┘" + System.lineSeparator()));
-                    }
+
+                    keys.stream().filter(tempKey -> !tempKey.equals(key))
+                            .filter(tempKey -> getBucketMap().get(tempKey) == temp)
+                            .forEach(tempKey -> builder.append(tempKey + ": ─────────────┘" + System.lineSeparator()));
+
                     builder.append(System.lineSeparator());
                 } else
                     builder.append(System.lineSeparator());
